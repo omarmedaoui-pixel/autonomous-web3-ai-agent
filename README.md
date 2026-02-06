@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![GitHub](https://img.shields.io/github/license/yourusername/web3-ai-agent)
+![GitHub](https://img.shields.io/github/license/hobostay/web3-ai-agent)
 ![Node.js](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen)
 ![Solidity](https://img.shields.io/badge/Solidity-%5E0.8.0-blue)
 ![Hardhat](https://img.shields.io/badge/Hardhat-%5E2.22.0-ffb84d)
@@ -63,7 +63,7 @@ Web3 AI Agent is a powerful framework that combines artificial intelligence with
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/web3-ai-agent.git
+git clone https://github.com/hobostay/web3-ai-agent.git
 cd web3-ai-agent
 
 # Install dependencies
@@ -411,7 +411,7 @@ Contributions are welcome! Here's how you can help:
 
 - 📖 Check the [CLI Guide](AGENT_CLI_GUIDE.md)
 - 📋 Review [Quick Reference](CLI_QUICK_REF.md)
-- 🐛 [Open an issue](https://github.com/yourusername/web3-ai-agent/issues)
+- 🐛 [Open an issue](https://github.com/hobostay/web3-ai-agent/issues)
 
 ---
 
