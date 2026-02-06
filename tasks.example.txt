@@ -1,0 +1,14 @@
+# Web3 AI Agent - Tasks File
+# Lines starting with # are comments and will be ignored
+# Add one task per line
+
+Analyze ETH price trends
+Monitor DeFi protocol yields
+Generate trading signals
+Check liquidity pool status
+Review token distribution
+Calculate portfolio value
+Assess market volatility
+Track whale movements
+Evaluate smart contract risk
+Monitor gas prices
