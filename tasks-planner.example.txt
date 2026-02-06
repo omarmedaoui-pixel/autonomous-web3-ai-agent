@@ -1,0 +1,27 @@
+# Web3 AI Agent - Planner Tasks
+# 一行一个任务，# 开头的行会被忽略
+
+# ERC20 Token Tasks
+Create an ERC20 token called RewardToken with minting and burning
+Deploy a deflationary token with 2% tax on each transfer
+Build a governance token for DAO voting
+
+# NFT Tasks
+Create an NFT collection called DigitalArt with metadata support
+Deploy an NFT contract with voting rights and royalties
+Build a gaming NFT with batch minting capability
+
+# DAO Tasks
+Create a DAO contract with proposal and voting system
+Deploy a governance DAO with timelock and multisig
+Build a charity DAO for community decisions
+
+# Staking Tasks
+Create a staking contract with reward distribution
+Deploy a liquidity pool staking system
+Build a locked staking contract with vesting
+
+# Complex Tasks
+Build a complete DeFi protocol with token, staking, and governance
+Create an NFT marketplace with DAO governance
+Deploy a yield farming system with multiple reward pools

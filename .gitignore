@@ -54,6 +54,10 @@ pnpm-debug.log*
 *.tmp
 temp/
 tmp/
+
+# Generated plans
+plans/
+*.plan.json
 .cache/
 
 # Optional npm cache directory
