@@ -1,18 +1,21 @@
 /**
- * Deployer Agent - Generates Deployment Scripts for Smart Contracts
+ * Deployer Agent - Generates Deployment Scripts and Deploys to Sepolia Testnet
  *
  * 功能：
  * - 为合约创建部署脚本
- * - 保存到scripts/目录
+ * - 自动部署到Sepolia测试网
+ * - 保存部署记录到deployments/
  */
 
 const fs = require("fs");
 const path = require("path");
+const { execSync } = require("child_process");
 
 class DeployerAgent {
   constructor(hre) {
     this.hre = hre;
     this.scriptsDir = path.join(process.cwd(), "scripts");
+    this.deploymentsDir = path.join(process.cwd(), "deployments");
   }
 
   /**
@@ -55,6 +58,241 @@ class DeployerAgent {
         success: false,
         error: error.message
       };
+    }
+  }
+
+  /**
+   * 自动部署合约到Sepolia测试网
+   * @param {object} plan - planner生成的执行计划
+   * @param {object} options - 部署选项
+   * @returns {object} 部署结果
+   */
+  async deploy(plan, options = {}) {
+    console.log("\n" + "=".repeat(70));
+    console.log("🚀 Deployer Agent - Auto-Deploying to Sepolia Testnet");
+    console.log("=".repeat(70));
+
+    try {
+      // 1. 验证环境变量
+      const envCheck = this._validateEnvironment();
+      if (!envCheck.valid) {
+        return {
+          success: false,
+          error: "Environment configuration required",
+          message: envCheck.message,
+          requiresConfig: true
+        };
+      }
+
+      console.log(`\n✓ Environment validated`);
+      console.log(`  Network: Sepolia Testnet`);
+
+      // 2. 确保目录存在
+      this._ensureDir(this.deploymentsDir);
+
+      // 3. 编译合约
+      console.log(`\n📦 Compiling contract: ${plan.contractName}...`);
+      try {
+        execSync("npx hardhat compile", {
+          stdio: "pipe",
+          cwd: process.cwd()
+        });
+        console.log(`✓ Contract compiled successfully`);
+      } catch (compileError) {
+        return {
+          success: false,
+          error: "Compilation failed: " + compileError.message
+        };
+      }
+
+      // 4. 部署合约到Sepolia
+      console.log(`\n🌐 Deploying to Sepolia testnet...`);
+      console.log(`  Contract: ${plan.contractName}`);
+
+      const deploymentResult = await this._deployToSepolia(plan);
+
+      if (!deploymentResult.success) {
+        return deploymentResult;
+      }
+
+      // 5. 保存部署记录
+      this._saveDeploymentRecord(deploymentResult.deploymentInfo);
+
+      console.log("\n" + "=".repeat(70));
+      console.log("✅ Deployment Complete!");
+      console.log("=".repeat(70));
+      console.log(`\n  Contract deployed at: ${deploymentResult.address}`);
+      console.log(`  Network: sepolia`);
+      console.log(`  Transaction: ${deploymentResult.txHash}`);
+      console.log(`  Deployer: ${deploymentResult.deployer}`);
+      console.log(`\n  View on Etherscan:`);
+      console.log(`  https://sepolia.etherscan.io/address/${deploymentResult.address}`);
+      console.log("\n" + "=".repeat(70));
+
+      return {
+        success: true,
+        address: deploymentResult.address,
+        network: "sepolia",
+        txHash: deploymentResult.txHash,
+        deployer: deploymentResult.deployer,
+        deploymentInfo: deploymentResult.deploymentInfo,
+        scriptGenerated: options.generateScript !== false
+      };
+
+    } catch (error) {
+      console.error(`\n✗ Deployment error: ${error.message}`);
+      return {
+        success: false,
+        error: error.message
+      };
+    }
+  }
+
+  /**
+   * 验证环境配置
+   * @returns {object} 验证结果
+   */
+  _validateEnvironment() {
+    const dotenv = require("dotenv");
+    const envPath = path.join(process.cwd(), ".env");
+
+    // 尝试加载.env文件
+    if (fs.existsSync(envPath)) {
+      dotenv.config({ path: envPath });
+    }
+
+    const missingVars = [];
+
+    if (!process.env.SEPOLIA_RPC_URL || process.env.SEPOLIA_RPC_URL === "" ||
+        process.env.SEPOLIA_RPC_URL.includes("your_infura_project_id")) {
+      missingVars.push("SEPOLIA_RPC_URL");
+    }
+
+    if (!process.env.PRIVATE_KEY || process.env.PRIVATE_KEY === "" ||
+        process.env.PRIVATE_KEY === "your_private_key_here") {
+      missingVars.push("PRIVATE_KEY");
+    }
+
+    if (missingVars.length > 0) {
+      return {
+        valid: false,
+        message: `Missing required environment variables: ${missingVars.join(", ")}\n\n` +
+                 `Please configure your .env file:\n` +
+                 `1. Copy .env.example to .env\n` +
+                 `2. Set SEPOLIA_RPC_URL (get from Infura/Alchemy)\n` +
+                 `3. Set PRIVATE_KEY (from your wallet)\n\n` +
+                 `Example .env configuration:\n` +
+                 `SEPOLIA_RPC_URL=https://sepolia.infura.io/v3/YOUR_PROJECT_ID\n` +
+                 `PRIVATE_KEY=0x...`
+      };
+    }
+
+    return { valid: true };
+  }
+
+  /**
+   * 部署合约到Sepolia测试网
+   * @param {object} plan - 执行计划
+   * @returns {object} 部署结果
+   */
+  async _deployToSepolia(plan) {
+    try {
+      // 设置Hardhat网络为Sepolia
+      this.hre.config.networks.sepolia = {
+        url: process.env.SEPOLIA_RPC_URL,
+        accounts: [process.env.PRIVATE_KEY]
+      };
+
+      // 获取Signer
+      const [deployer] = await this.hre.ethers.getSigners();
+      const balance = await this.hre.ethers.provider.getBalance(deployer.address);
+
+      console.log(`  Deployer: ${deployer.address}`);
+      console.log(`  Balance: ${this.hre.ethers.formatEther(balance)} ETH`);
+
+      // 检查余额
+      if (balance === 0n) {
+        return {
+          success: false,
+          error: "Insufficient balance. Please fund your account with Sepolia ETH."
+        };
+      }
+
+      // 部署合约
+      console.log(`  Deploying contract...`);
+      const ContractFactory = await this.hre.ethers.getContractFactory(plan.contractName);
+      const contract = await ContractFactory.deploy();
+
+      await contract.waitForDeployment();
+      const address = await contract.getAddress();
+      const txHash = contract.deploymentTransaction()?.hash || "";
+
+      console.log(`✓ Contract deployed at: ${address}`);
+
+      return {
+        success: true,
+        address,
+        txHash,
+        deployer: deployer.address,
+        deploymentInfo: {
+          contract: plan.contractName,
+          address: address,
+          network: "sepolia",
+          deployer: deployer.address,
+          txHash: txHash,
+          timestamp: new Date().toISOString(),
+          type: plan.type
+        }
+      };
+
+    } catch (error) {
+      console.error(`  Deployment failed: ${error.message}`);
+      return {
+        success: false,
+        error: error.message
+      };
+    }
+  }
+
+  /**
+   * 保存部署记录
+   * @param {object} deploymentInfo - 部署信息
+   */
+  _saveDeploymentRecord(deploymentInfo) {
+    try {
+      this._ensureDir(this.deploymentsDir);
+
+      const record = {
+        ...deploymentInfo,
+        savedAt: new Date().toISOString()
+      };
+
+      // 保存到deployments/deployments.json
+      const recordsFile = path.join(this.deploymentsDir, "deployments.json");
+      let records = [];
+
+      if (fs.existsSync(recordsFile)) {
+        try {
+          records = JSON.parse(fs.readFileSync(recordsFile, "utf8"));
+        } catch (e) {
+          records = [];
+        }
+      }
+
+      records.push(record);
+      fs.writeFileSync(recordsFile, JSON.stringify(records, null, 2));
+
+      // 保存单独的部署记录文件
+      const filename = `${deploymentInfo.network}-${deploymentInfo.contract}-${Date.now()}.json`;
+      const filepath = path.join(this.deploymentsDir, filename);
+      fs.writeFileSync(filepath, JSON.stringify(record, null, 2));
+
+      console.log(`\n📄 Deployment records saved:`);
+      console.log(`   - ${recordsFile}`);
+      console.log(`   - ${filepath}`);
+
+    } catch (error) {
+      console.warn(`Warning: Could not save deployment record: ${error.message}`);
     }
   }
 

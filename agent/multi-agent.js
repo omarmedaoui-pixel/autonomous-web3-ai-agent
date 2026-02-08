@@ -124,15 +124,29 @@ class MultiAgentController {
 
       results.testResults = testRunResult;
 
-      // 测试成功，继续生成部署脚本
+      // 测试成功，自动部署到Sepolia测试网
       console.log("\n" + "─".repeat(70));
-      console.log("🚀 Step 5: Deployment Script Generation");
+      console.log("🚀 Step 5: Auto-Deployment to Sepolia Testnet");
       console.log("─".repeat(70));
-      const deployResult = await this.deployer.generate(plan);
+      const deployResult = await this.deployer.deploy(plan, {
+        generateScript: true
+      });
 
       if (!deployResult.success) {
-        results.errors.push("Deploy script generation failed: " + deployResult.error);
-        throw new Error("Deploy script generation failed");
+        results.errors.push("Deployment failed: " + deployResult.error);
+
+        // 如果是配置问题，给出提示
+        if (deployResult.requiresConfig) {
+          console.log("\n" + "─".repeat(70));
+          console.log("⚠️  Deployment Configuration Required");
+          console.log("─".repeat(70));
+          console.log(deployResult.message);
+          console.log("\n💡 Tip: You can still use the generated deployment script manually:");
+          console.log(`  npx hardhat run scripts/deploy-${plan.contractName}.js --network sepolia`);
+          console.log("─".repeat(70));
+        }
+
+        throw new Error("Deployment failed");
       }
 
       results.deployScript = deployResult;
@@ -385,16 +399,31 @@ class MultiAgentController {
     }
 
     if (results.deployScript) {
-      console.log(`\n  Deploy Script:`);
-      console.log(`    File:         ${results.deployScript.fileName}`);
-      console.log(`    Location:     scripts/${results.deployScript.fileName}`);
+      if (results.deployScript.address) {
+        console.log(`\n  Deployment:`);
+        console.log(`    Status:       ✓ Deployed successfully`);
+        console.log(`    Network:      ${results.deployScript.network}`);
+        console.log(`    Address:      ${results.deployScript.address}`);
+        console.log(`    Transaction:  ${results.deployScript.txHash}`);
+        console.log(`    Etherscan:    https://${results.deployScript.network}.etherscan.io/address/${results.deployScript.address}`);
+      } else {
+        console.log(`\n  Deploy Script:`);
+        console.log(`    File:         ${results.deployScript.fileName}`);
+        console.log(`    Location:     scripts/${results.deployScript.fileName}`);
+      }
     }
 
     console.log("\n" + "=".repeat(70));
     console.log("\n📋 Next Steps:");
     console.log(`  1. Review the generated contract: contracts/${results.contract?.fileName}`);
     console.log(`  2. Review test results: Test ${results.testResults?.attempt || 1} passed`);
-    console.log(`  3. Deploy: npx hardhat run scripts/${results.deployScript?.fileName} --network <network>`);
+
+    if (results.deployScript?.address) {
+      console.log(`  3. View on Etherscan: https://${results.deployScript.network}.etherscan.io/address/${results.deployScript.address}`);
+      console.log(`  4. Verify contract: npx hardhat verify --network ${results.deployScript.network} ${results.deployScript.address}`);
+    } else {
+      console.log(`  3. Deploy: npx hardhat run scripts/${results.deployScript?.fileName} --network <network>`);
+    }
 
     if (results.fixesApplied > 0) {
       console.log(`\n🔧 Auto-Fix: ${results.fixesApplied} fix(es) applied automatically`);
