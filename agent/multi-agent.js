@@ -1,16 +1,18 @@
 #!/usr/bin/env node
 /**
- * Web3 AI Agent - Multi-Agent Architecture
+ * Web3 AI Agent - Multi-Agent Architecture with Auto-Fix
  *
  * 主控制器：协调所有Agent工作
  *
  * 执行流程：
- * 用户输入 → planner.js分析任务 → coder.js生成合约 → tester.js生成测试 → deployer.js生成部署脚本
+ * 用户输入 → planner.js分析任务 → coder.js生成合约 → tester.js生成测试 → [运行测试]
+ * 如果测试失败 → fixer.js修复 → 再次运行测试（最多3次）→ deployer.js生成部署脚本
  *
  * Usage: node agent/multi-agent.js "创建ERC20代币 TestToken"
  */
 
 const hre = require("hardhat");
+const { execSync } = require("child_process");
 const fs = require("fs");
 const path = require("path");
 
@@ -19,6 +21,7 @@ const Planner = require("./planner");
 const CoderAgent = require("./coders/coder");
 const TesterAgent = require("./testers/tester");
 const DeployerAgent = require("./deployers/deployer");
+const FixerAgent = require("./fixers/fixer");
 
 class MultiAgentController {
   constructor(hre) {
@@ -27,6 +30,7 @@ class MultiAgentController {
     this.coder = new CoderAgent(hre);
     this.tester = new TesterAgent(hre);
     this.deployer = new DeployerAgent(hre);
+    this.fixer = new FixerAgent(hre);
   }
 
   /**
@@ -37,7 +41,7 @@ class MultiAgentController {
    */
   async process(userTask, options = {}) {
     console.log("\n" + "=".repeat(70));
-    console.log("🤖 Web3 AI Agent - Multi-Agent System");
+    console.log("🤖 Web3 AI Agent - Multi-Agent System with Auto-Fix");
     console.log("=".repeat(70));
     console.log(`\n📝 Task: "${userTask}"\n`);
 
@@ -46,14 +50,17 @@ class MultiAgentController {
       plan: null,
       contract: null,
       test: null,
+      testResults: null,
       deployScript: null,
+      fixesAttempted: 0,
+      fixesApplied: 0,
       success: false,
       errors: []
     };
 
     try {
       // Step 1: 分析任务并生成计划
-      console.log("\n" + "─".repeat(70));
+      console.log("─".repeat(70));
       console.log("🧠 Step 1: Planning");
       console.log("─".repeat(70));
       const planResult = await this.planner.process(userTask, {
@@ -89,7 +96,7 @@ class MultiAgentController {
 
       // Step 3: 生成测试文件
       console.log("\n" + "─".repeat(70));
-      console.log("🧪 Step 3: Testing");
+      console.log("🧪 Step 3: Generating Tests");
       console.log("─".repeat(70));
       const testResult = await this.tester.generate(plan);
 
@@ -103,9 +110,23 @@ class MultiAgentController {
       // 短暂延迟，展示进度
       await this._delay(500);
 
-      // Step 4: 生成部署脚本
+      // Step 4: 运行测试并自动修复
       console.log("\n" + "─".repeat(70));
-      console.log("🚀 Step 4: Deployment Script Generation");
+      console.log("🧪 Step 4: Running Tests with Auto-Fix");
+      console.log("─".repeat(70));
+
+      const testRunResult = await this._runTestsWithFix(plan, testResult, results);
+
+      if (!testRunResult.success) {
+        results.errors.push("Tests failed after auto-fix attempts");
+        throw new Error("Tests failed");
+      }
+
+      results.testResults = testRunResult;
+
+      // 测试成功，继续生成部署脚本
+      console.log("\n" + "─".repeat(70));
+      console.log("🚀 Step 5: Deployment Script Generation");
       console.log("─".repeat(70));
       const deployResult = await this.deployer.generate(plan);
 
@@ -139,6 +160,146 @@ class MultiAgentController {
       }
 
       throw error;
+    }
+  }
+
+  /**
+   * 运行测试并自动修复错误
+   * @param {object} plan - 执行计划
+   * @param {object} testResult - 测试文件信息
+   * @param {object} results - 结果对象
+   * @returns {object} 测试运行结果
+   */
+  async _runTestsWithFix(plan, testResult, results) {
+    const maxRetries = 3;
+    const testFile = testResult.fileName;
+
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      console.log(`\n  📋 Test Attempt ${attempt}/${maxRetries}`);
+
+      try {
+        // 运行测试
+        const testOutput = this._runTests(testFile);
+
+        // 测试通过
+        if (testOutput.success) {
+          console.log(`\n  ✅ Tests passed!`);
+          return {
+            success: true,
+            attempt,
+            output: testOutput
+          };
+        }
+
+        // 测试失败，尝试修复（如果不是最后一次尝试）
+        if (attempt < maxRetries) {
+          console.log(`\n  ⚠️  Tests failed, attempting auto-fix...`);
+          results.fixesAttempted++;
+
+          const fixResult = await this.fixer.fix({
+            type: "test",
+            message: testOutput.error,
+            fileName: testFile,
+            context: { plan, attempt }
+          });
+
+          if (fixResult.success) {
+            results.fixesApplied++;
+            console.log(`  ✓ Fix applied, retrying tests...`);
+
+            // 编译修复后的合约
+            console.log(`  🔄 Recompiling contracts...`);
+            execSync("npx hardhat compile", {
+              stdio: "inherit",
+              cwd: process.cwd()
+            });
+
+            // 短暂延迟
+            await this._delay(500);
+          } else {
+            console.log(`  ℹ️  Could not auto-fix: ${fixResult.message}`);
+
+            if (fixResult.suggestions && fixResult.suggestions.length > 0) {
+              console.log(`  💡 Suggestions:`);
+              fixResult.suggestions.forEach((s, i) => {
+                console.log(`     ${i + 1}. ${s}`);
+              });
+            }
+          }
+        } else {
+          // 最后一次尝试失败
+          console.error(`\n  ✗ Tests failed after ${maxRetries} attempts`);
+          return {
+            success: false,
+            attempt,
+            error: testOutput.error,
+            suggestions: testOutput.suggestions
+          };
+        }
+
+      } catch (error) {
+        console.log(`\n  ⚠️  Test execution error: ${error.message}`);
+
+        // 尝试修复执行错误
+        if (attempt < maxRetries) {
+          const fixResult = await this.fixer.fix({
+            type: "compile",
+            message: error.message,
+            fileName: plan.contractName + ".sol",
+            context: { error, attempt }
+          });
+
+          if (fixResult.success) {
+            results.fixesApplied++;
+            console.log(`  ✓ Fixed compilation error`);
+          }
+        } else {
+          return {
+            success: false,
+            attempt,
+            error: error.message
+          };
+        }
+      }
+    }
+
+    // 不应该到达这里
+    return {
+      success: false,
+      error: "Maximum retries exceeded"
+    };
+  }
+
+  /**
+   * 运行测试
+   * @param {string} testFile - 测试文件名
+   * @returns {object} 测试结果
+   */
+  _runTests(testFile) {
+    try {
+      console.log(`    Running: npx hardhat test test/${testFile}`);
+
+      const output = execSync(`npx hardhat test test/${testFile}`, {
+        encoding: "utf8",
+        stdio: "pipe",
+        cwd: process.cwd()
+      });
+
+      // 测试通过
+      return {
+        success: true,
+        output
+      };
+
+    } catch (error) {
+      // 测试失败
+      const errorOutput = error.stderr || error.stdout || error.message;
+
+      return {
+        success: false,
+        error: errorOutput,
+        exitCode: error.status
+      };
     }
   }
 
@@ -193,8 +354,13 @@ class MultiAgentController {
     console.log("✅ Multi-Agent Execution Complete");
     console.log("=".repeat(70));
     console.log(`\n📊 Summary:`);
-    console.log(`  Duration:     ${duration}s`);
-    console.log(`  Status:       ✓ Success`);
+    console.log(`  Duration:       ${duration}s`);
+    console.log(`  Status:         ✓ Success`);
+
+    if (results.fixesAttempted > 0) {
+      console.log(`  Fixes Attempted: ${results.fixesAttempted}`);
+      console.log(`  Fixes Applied:  ${results.fixesApplied}`);
+    }
 
     if (results.plan) {
       console.log(`\n  Plan:`);
@@ -213,6 +379,9 @@ class MultiAgentController {
       console.log(`\n  Test:`);
       console.log(`    File:         ${results.test.fileName}`);
       console.log(`    Location:     test/${results.test.fileName}`);
+      if (results.testResults) {
+        console.log(`    Status:       ✓ Passed (attempt ${results.testResults.attempt})`);
+      }
     }
 
     if (results.deployScript) {
@@ -224,8 +393,13 @@ class MultiAgentController {
     console.log("\n" + "=".repeat(70));
     console.log("\n📋 Next Steps:");
     console.log(`  1. Review the generated contract: contracts/${results.contract?.fileName}`);
-    console.log(`  2. Run tests: npx hardhat test test/${results.test?.fileName}`);
+    console.log(`  2. Review test results: Test ${results.testResults?.attempt || 1} passed`);
     console.log(`  3. Deploy: npx hardhat run scripts/${results.deployScript?.fileName} --network <network>`);
+
+    if (results.fixesApplied > 0) {
+      console.log(`\n🔧 Auto-Fix: ${results.fixesApplied} fix(es) applied automatically`);
+    }
+
     console.log("\n" + "=".repeat(70));
   }
 
@@ -254,6 +428,8 @@ class MultiAgentController {
       task: userTask,
       duration: duration + "s",
       success: results.success,
+      fixesAttempted: results.fixesAttempted || 0,
+      fixesApplied: results.fixesApplied || 0,
       plan: results.plan ? {
         type: results.plan.type,
         contractName: results.plan.contractName,
@@ -264,6 +440,10 @@ class MultiAgentController {
         test: results.test?.fileName || null,
         deployScript: results.deployScript?.fileName || null
       },
+      testResults: results.testResults ? {
+        attempt: results.testResults.attempt,
+        success: results.testResults.success
+      } : null,
       errors: results.errors
     };
 
@@ -294,7 +474,7 @@ async function main() {
   if (args.length === 0) {
     console.log(`
 ╔════════════════════════════════════════════════════════════════╗
-║          Web3 AI Agent - Multi-Agent System                    ║
+║          Web3 AI Agent - Multi-Agent System with Auto-Fix        ║
 ╚════════════════════════════════════════════════════════════════╝
 
 Usage:
@@ -303,8 +483,14 @@ Usage:
 
 Examples:
   node agent/multi-agent.js "创建ERC20代币 TestToken"
-  node agent/multi-agent.js "创建NFT合约 MyNFT --symbol MNFT"
+  node agent/multi-agent.js "创建NFT合约 MyNFT"
   node agent/multi-agent.js "创建DAO合约 MyDAO"
+
+Features:
+  • Multi-Agent coordination (Planner, Coder, Tester, Deployer)
+  • Auto-fix with 3 retry attempts
+  • Automatic error detection and correction
+  • Real-time progress tracking
 
 For more information, see: MULTI_AGENT_GUIDE.md
 `);
