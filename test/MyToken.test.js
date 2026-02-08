@@ -1,240 +1,96 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
 
-describe("MyToken Contract", function () {
+describe("MyToken (MyToken)", function () {
   let myToken;
-  let owner;
-  let addr1;
-  let addr2;
-
-  const TOKEN_NAME = "MyToken";
-  const TOKEN_SYMBOL = "MTK";
-  const TOTAL_SUPPLY = ethers.parseEther("1000000");
+  let owner, addr1, addr2;
 
   beforeEach(async function () {
     [owner, addr1, addr2] = await ethers.getSigners();
 
-    const MyToken = await ethers.getContractFactory("MyToken");
-    myToken = await MyToken.deploy();
+    const myTokenFactory = await ethers.getContractFactory("MyToken");
+    myToken = await myTokenFactory.deploy();
     await myToken.waitForDeployment();
   });
 
-  describe("部署", function () {
-    it("应该设置正确的名称", async function () {
-      expect(await myToken.name()).to.equal(TOKEN_NAME);
+  describe("Deployment", function () {
+    it("Should set the correct name and symbol", async function () {
+      expect(await myToken.name()).to.equal("MyToken");
+      expect(await myToken.symbol()).to.equal("MYTO");
     });
 
-    it("应该设置正确的符号", async function () {
-      expect(await myToken.symbol()).to.equal(TOKEN_SYMBOL);
-    });
-
-    it("应该设置正确的精度", async function () {
-      expect(await myToken.decimals()).to.equal(18);
-    });
-
-    it("应该铸造全部代币给部署者", async function () {
+    it("Should mint initial supply to owner", async function () {
       const ownerBalance = await myToken.balanceOf(owner.address);
       expect(await myToken.totalSupply()).to.equal(ownerBalance);
     });
 
-    it("应该设置正确的总量", async function () {
-      expect(await myToken.totalSupply()).to.equal(TOTAL_SUPPLY);
-    });
-
-    it("应该设置部署者为所有者", async function () {
-      expect(await myToken.owner()).to.equal(owner.address);
+    it("Should have correct initial supply", async function () {
+      const expectedSupply = ethers.parseEther("1000000");
+      expect(await myToken.totalSupply()).to.equal(expectedSupply);
     });
   });
 
-  describe("转账", function () {
-    it("应该成功转账", async function () {
-      const transferAmount = ethers.parseEther("100");
-
-      await expect(
-        myToken.transfer(addr1.address, transferAmount)
-      ).to.emit(myToken, "Transfer")
-        .withArgs(owner.address, addr1.address, transferAmount);
-
+  describe("Transactions", function () {
+    it("Should transfer tokens between accounts", async function () {
+      // Transfer 50 tokens from owner to addr1
+      await myToken.transfer(addr1.address, 50);
       const addr1Balance = await myToken.balanceOf(addr1.address);
-      expect(addr1Balance).to.equal(transferAmount);
+      expect(addr1Balance).to.equal(50);
+
+      // Transfer 50 tokens from addr1 to addr2
+      await myToken.connect(addr1).transfer(addr2.address, 50);
+      const addr2Balance = await myToken.balanceOf(addr2.address);
+      expect(addr2Balance).to.equal(50);
+      expect(await myToken.balanceOf(addr1.address)).to.equal(0);
     });
 
-    it("应该更新转账双方的余额", async function () {
-      const transferAmount = ethers.parseEther("100");
+    it("Should fail if sender doesn't have enough tokens", async function () {
+      const initialOwnerBalance = await myToken.balanceOf(owner.address);
 
-      const ownerInitialBalance = await myToken.balanceOf(owner.address);
-
-      await myToken.transfer(addr1.address, transferAmount);
-
-      const ownerFinalBalance = await myToken.balanceOf(owner.address);
-      const addr1Balance = await myToken.balanceOf(addr1.address);
-
-      expect(ownerFinalBalance).to.equal(ownerInitialBalance - transferAmount);
-      expect(addr1Balance).to.equal(transferAmount);
-    });
-
-    it("余额不足时应该失败", async function () {
-      const transferAmount = ethers.parseEther("1000001");
-
+      // Try to send 1 token from addr1 (0 tokens) to owner
       await expect(
-        myToken.transfer(addr1.address, transferAmount)
+        myToken.connect(addr1).transfer(owner.address, 1)
       ).to.be.revertedWithCustomError(myToken, "ERC20InsufficientBalance");
+
+      // Owner balance shouldn't change
+      expect(await myToken.balanceOf(owner.address)).to.equal(
+        initialOwnerBalance
+      );
     });
   });
 
-  describe("铸造", function () {
-    it("所有者应该能够铸造代币", async function () {
-      const mintAmount = ethers.parseEther("1000");
-
-      await expect(myToken.mint(addr1.address, mintAmount))
-        .to.emit(myToken, "Minted")
-        .withArgs(addr1.address, mintAmount);
-
-      const addr1Balance = await myToken.balanceOf(addr1.address);
-      expect(addr1Balance).to.equal(mintAmount);
+  describe("Minting", function () {
+    it("Should allow owner to mint new tokens", async function () {
+      const mintAmount = 1000;
+      await myToken.mint(addr1.address, mintAmount);
+      expect(await myToken.balanceOf(addr1.address)).to.equal(mintAmount);
     });
 
-    it("非所有者不应该能够铸造代币", async function () {
-      const mintAmount = ethers.parseEther("1000");
-
+    it("Should fail if non-owner tries to mint", async function () {
       await expect(
-        myToken.connect(addr1).mint(addr2.address, mintAmount)
+        myToken.connect(addr1).mint(addr2.address, 100)
       ).to.be.revertedWithCustomError(myToken, "OwnableUnauthorizedAccount");
     });
+  });
 
-    it("不应该铸造到零地址", async function () {
-      const mintAmount = ethers.parseEther("1000");
+  describe("Burning", function () {
+    it("Should allow token holders to burn tokens", async function () {
+      const initialBalance = await myToken.balanceOf(owner.address);
+      const burnAmount = 100;
 
-      await expect(
-        myToken.mint(ethers.ZeroAddress, mintAmount)
-      ).to.be.revertedWith("Cannot mint to zero address");
-    });
-
-    it("不应该铸造到零地址", async function () {
-      const mintAmount = ethers.parseEther("1000");
-
-      await expect(
-        myToken.mint(ethers.ZeroAddress, mintAmount)
-      ).to.be.revertedWith("Cannot mint to zero address");
+      await myToken.burn(burnAmount);
+      expect(await myToken.balanceOf(owner.address)).to.equal(
+        initialBalance - burnAmount
+      );
     });
   });
 
-  describe("销毁", function () {
-    it("应该能够销毁代币", async function () {
-      const burnAmount = ethers.parseEther("1000");
-
-      await expect(myToken.burn(burnAmount))
-        .to.emit(myToken, "Burned")
-        .withArgs(owner.address, burnAmount);
-
-      const ownerBalance = await myToken.balanceOf(owner.address);
-      expect(ownerBalance).to.equal(TOTAL_SUPPLY - burnAmount);
-    });
-
-    it("余额不足时应该无法销毁", async function () {
-      const burnAmount = ethers.parseEther("1000001");
-
-      await expect(
-        myToken.burn(burnAmount)
-      ).to.be.revertedWithCustomError(myToken, "ERC20InsufficientBalance");
-    });
-  });
-
-  describe("批量转账", function () {
-    it("所有者应该能够批量转账", async function () {
-      const recipients = [addr1.address, addr2.address];
-      const amounts = [
-        ethers.parseEther("100"),
-        ethers.parseEther("200")
-      ];
-
-      await myToken.batchTransfer(recipients, amounts);
-
-      expect(await myToken.balanceOf(addr1.address)).to.equal(amounts[0]);
-      expect(await myToken.balanceOf(addr2.address)).to.equal(amounts[1]);
-    });
-
-    it("非所有者不应该能够批量转账", async function () {
-      const recipients = [addr1.address];
-      const amounts = [ethers.parseEther("100")];
-
-      await expect(
-        myToken.connect(addr1).batchTransfer(recipients, amounts)
-      ).to.be.revertedWithCustomError(myToken, "OwnableUnauthorizedAccount");
-    });
-
-    it("数组长度不匹配时应该失败", async function () {
-      const recipients = [addr1.address, addr2.address];
-      const amounts = [ethers.parseEther("100")];
-
-      await expect(
-        myToken.batchTransfer(recipients, amounts)
-      ).to.be.revertedWith("Arrays length mismatch");
-    });
-
-    it("超过200个接收者时应该失败", async function () {
-      const recipients = Array(201).fill(addr1.address);
-      const amounts = Array(201).fill(ethers.parseEther("1"));
-
-      await expect(
-        myToken.batchTransfer(recipients, amounts)
-      ).to.be.revertedWith("Too many recipients");
-    });
-  });
-
-  describe("代币信息", function () {
-    it("应该返回正确的代币信息", async function () {
+  describe("Token Info", function () {
+    it("Should return correct token information", async function () {
       const info = await myToken.getTokenInfo();
-
-      expect(info.tokenName).to.equal(TOKEN_NAME);
-      expect(info.tokenSymbol).to.equal(TOKEN_SYMBOL);
-      expect(info.tokenDecimals).to.equal(18);
-      expect(info.totalTokenSupply).to.equal(TOTAL_SUPPLY);
-      expect(info.maxSupply).to.equal(TOTAL_SUPPLY);
-    });
-  });
-
-  describe("授权", function () {
-    it("应该能够授权", async function () {
-      await myToken.approve(addr1.address, ethers.parseEther("1000"));
-
-      expect(await myToken.allowance(owner.address, addr1.address))
-        .to.equal(ethers.parseEther("1000"));
-    });
-
-    it("应该能够使用授权进行转账", async function () {
-      const transferAmount = ethers.parseEther("100");
-
-      await myToken.approve(addr1.address, transferAmount);
-      await myToken.connect(addr1).transferFrom(owner.address, addr2.address, transferAmount);
-
-      expect(await myToken.balanceOf(addr2.address)).to.equal(transferAmount);
-    });
-
-    it("授权不足时应该失败", async function () {
-      const transferAmount = ethers.parseEther("100");
-
-      await myToken.approve(addr1.address, ethers.parseEther("50"));
-
-      await expect(
-        myToken.connect(addr1).transferFrom(owner.address, addr2.address, transferAmount)
-      ).to.be.revertedWithCustomError(myToken, "ERC20InsufficientAllowance");
-    });
-  });
-
-  describe("事件", function () {
-    it("应该触发 Transfer 事件", async function () {
-      const transferAmount = ethers.parseEther("100");
-
-      await expect(myToken.transfer(addr1.address, transferAmount))
-        .to.emit(myToken, "Transfer")
-        .withArgs(owner.address, addr1.address, transferAmount);
-    });
-
-    it("应该触发 Approval 事件", async function () {
-      await expect(myToken.approve(addr1.address, ethers.parseEther("1000")))
-        .to.emit(myToken, "Approval")
-        .withArgs(owner.address, addr1.address, ethers.parseEther("1000"));
+      expect(info[0]).to.equal("MyToken");
+      expect(info[1]).to.equal("MYTO");
+      expect(info[3]).to.equal(18);
     });
   });
 });

@@ -60,6 +60,10 @@ plans/
 *.plan.json
 .cache/
 
+# Multi-Agent System
+reports/
+deployments/
+
 # Optional npm cache directory
 .npm
 

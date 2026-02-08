@@ -1,4 +1,4 @@
-# Web3 AI Agent 🤖⛓️
+# Web3 AI Multi-Agent System 🤖⛓️
 
 <div align="center">
 
@@ -7,9 +7,9 @@
 ![Solidity](https://img.shields.io/badge/Solidity-%5E0.8.0-blue)
 ![Hardhat](https://img.shields.io/badge/Hardhat-%5E2.22.0-ffb84d)
 
-**A next-generation AI-powered agent framework for interacting with smart contracts on the Ethereum blockchain**
+**An AI-powered Multi-Agent system for automatically generating smart contracts**
 
-[Features](#-features) • [Quick Start](#-quick-start) • [CLI Usage](#-cli-usage) • [Documentation](#-documentation) • [Contributing](#-contributing)
+[Features](#-features) • [Quick Start](#-quick-start) • [Architecture](#-architecture) • [Usage](#-usage) • [Documentation](#-documentation)
 
 </div>
 
@@ -17,37 +17,57 @@
 
 ## 📖 Overview
 
-Web3 AI Agent is a powerful framework that combines artificial intelligence with blockchain technology. It provides both a **programmatic API** and a **command-line interface** for automating smart contract interactions, monitoring events, and executing complex workflows on Ethereum.
+Web3 AI Multi-Agent System is a cutting-edge framework that uses multiple specialized AI agents to automatically generate, test, and deploy smart contracts. Simply describe what you want in natural language, and the system orchestrates multiple agents to handle the entire development workflow.
 
 ### ✨ Key Highlights
 
-- 🚀 **CLI Interface** - Execute tasks directly from command line
-- 📊 **Batch Processing** - Handle multiple tasks efficiently
-- 📁 **File-Based Tasks** - Define workflows in text files
-- 👁️ **Real-Time Monitoring** - Listen to blockchain events as they happen
-- 🧪 **Comprehensive Testing** - Full test suite with coverage reports
-- 🔧 **Developer Friendly** - Easy to extend and customize
+- 🧠 **Planner Agent** - Analyzes requirements and creates execution plans
+- 💻 **Coder Agent** - Generates production-ready Solidity contracts
+- 🧪 **Tester Agent** - Creates comprehensive test suites
+- 🚀 **Deployer Agent** - Generates deployment scripts
+- 🎯 **CLI Support** - Simple command-line interface
+- 📦 **Batch Processing** - Handle multiple contract generation tasks
 
 ---
 
 ## 🚀 Features
 
-### Core Capabilities
+### Multi-Agent Architecture
 
-- **Smart Contract Integration** - Seamless interaction with Solidity contracts
-- **Task Execution Engine** - Deploy and execute tasks on-chain
-- **Real-Time Event Monitoring** - Listen to and analyze blockchain events
-- **State Analysis** - Deep analysis of contract states and data
-- **Batch Processing** - Execute multiple tasks in a single transaction
-- **Activity Reporting** - Generate detailed execution reports
-- **Extensible Architecture** - Easy to add new capabilities
+The system uses a coordinated team of AI agents, each specialized in a specific aspect of smart contract development:
 
-### Smart Contracts Included
+#### 🧠 Planner Agent
+- Analyzes user requirements in natural language
+- Identifies contract type (ERC20, ERC721, DAO, etc.)
+- Generates detailed execution plans
+- Extracts specifications and features
 
-- **Web3AIAgent.sol** - Core agent contract with task management
-- **MyToken.sol** - ERC20 token implementation
-- **Web3NFT.sol** - ERC721 NFT contract with metadata
-- **VotingDAO.sol** - Decentralized voting system
+#### 💻 Coder Agent
+- Generates Solidity smart contracts
+- Follows best practices and security standards
+- Uses OpenZeppelin libraries
+- Supports multiple contract templates
+
+#### 🧪 Tester Agent
+- Creates comprehensive test files
+- Uses Hardhat and ethers.js
+- Covers edge cases and security scenarios
+- Generates readable test documentation
+
+#### 🚀 Deployer Agent
+- Creates deployment scripts
+- Supports multiple networks (localhost, testnet, mainnet)
+- Includes Etherscan verification
+- Saves deployment records
+
+### Supported Contract Types
+
+| Type | Description | Features |
+|------|-------------|----------|
+| **ERC20** | Fungible Token | Mint, burn, transfer, owner controls |
+| **ERC721** | Non-Fungible Token | Mint, metadata storage, ownership tracking |
+| **DAO** | Decentralized Organization | Proposals, voting, quorum-based execution |
+| **Voting** | Voting System | Time-based voting, execution logic |
 
 ---
 
@@ -73,155 +93,193 @@ npm install
 npm run compile
 ```
 
-### Run Tests
+### Basic Usage
 
 ```bash
-# Run all tests
-npm test
+# Generate an ERC20 token
+node agent/multi-agent.js "创建ERC20代币 MyToken"
 
-# Run specific contract tests
-npm run test:token
-npm run test:nft
-npm run test:dao
+# Generate an NFT contract
+node agent/multi-agent.js "创建NFT合约 MyNFT"
 
-# Run with coverage
-npm run test:coverage
-```
+# Generate a DAO contract
+node agent/multi-agent.js "创建DAO合约 MyDAO"
 
-### 5-Minute Demo
-
-```bash
-# 1. Start local network (Terminal 1)
-npm run node
-
-# 2. Deploy and execute tasks (Terminal 2)
-node agent/agent.js "Analyze market trends" --deploy
-
-# That's it! Your agent is now running on blockchain! 🎉
-```
-
----
-
-## 💻 CLI Usage
-
-The Web3 AI Agent provides a powerful CLI for automated task execution.
-
-### Basic Commands
-
-```bash
-# Deploy contract and execute a task
-node agent/agent.js "Your task description" --deploy
-
-# Use existing contract
-node agent/agent.js "Task description" --address <CONTRACT_ADDRESS>
-
-# Execute multiple tasks (batch mode)
-node agent/agent.js "Task1,Task2,Task3" --batch --address <CONTRACT_ADDRESS>
-
-# Execute tasks from file
-node agent/agent.js --file tasks.txt --address <CONTRACT_ADDRESS>
-
-# Enable event monitoring
-node agent/agent.js "Task" --monitor --address <CONTRACT_ADDRESS>
-```
-
-### CLI Options
-
-| Option | Short | Description |
-|--------|-------|-------------|
-| `--deploy` | `-d` | Deploy new contract |
-| `--address <addr>` | `-a` | Use existing deployed contract |
-| `--network <net>` | `-n` | Specify network (hardhat, localhost, sepolia) |
-| `--monitor` | `-m` | Enable real-time event monitoring |
-| `--batch` | `-b` | Execute multiple tasks |
-| `--file <path>` | `-f` | Read tasks from file |
-| `--help` | `-h` | Show help message |
-
-### Advanced Examples
-
-```bash
-# Deploy to specific network
-node agent/agent.js "Execute strategy" --network sepolia --deploy
-
-# Using npm script
-npm run agent:cli "Your task" -- --deploy
-
-# Interactive demo
-./demo-cli.sh
+# Multiple tasks
+node agent/multi-agent.js "任务1" "任务2" "任务3"
 ```
 
 ### Output Example
 
 ```
-============================================================
-🚀 Web3 AI Agent
-============================================================
+======================================================================
+🤖 Web3 AI Agent - Multi-Agent System
+======================================================================
 
-👤 Account: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
-💰 Balance: 10000.0 ETH
+📝 Task: "创建ERC20代币 MyToken"
 
-📜 Deploying Web3AIAgent contract...
-✅ Contract deployed to: 0x5FbDB2315678afecb367f032d93F642f64180aa3
+──────────────────────────────────────────────────────────────────────
+🧠 Step 1: Planning
+──────────────────────────────────────────────────────────────────────
+✓ Task analyzed: ERC20 token
+✓ Contract name: MyToken
+✓ Plan generated with 6 steps
 
-📦 Executing 3 tasks in batch...
+──────────────────────────────────────────────────────────────────────
+💻 Step 2: Coding
+──────────────────────────────────────────────────────────────────────
+✓ Contract generated: MyToken.sol
+  Location: contracts/MyToken.sol
+  Size: 996 bytes
 
-[1/3] Monitor ETH price
-✅ Transaction confirmed in block: 2
-💰 Gas used: 160877
+──────────────────────────────────────────────────────────────────────
+🧪 Step 3: Testing
+──────────────────────────────────────────────────────────────────────
+✓ Test file generated: MyToken.test.js
+  Location: test/MyToken.test.js
+  Size: 3367 bytes
 
-[2/3] Analyze DeFi yields
-✅ Transaction confirmed in block: 3
-💰 Gas used: 126701
+──────────────────────────────────────────────────────────────────────
+🚀 Step 4: Deployment Script Generation
+──────────────────────────────────────────────────────────────────────
+✓ Deployment script generated: deploy-MyToken.js
+  Location: scripts/deploy-MyToken.js
 
-[3/3] Generate trading signals
-✅ Transaction confirmed in block: 4
-💰 Gas used: 126761
+======================================================================
+✅ Multi-Agent Execution Complete (1.51s)
+======================================================================
 
-============================================================
-📊 Batch Execution Summary
-============================================================
-✅ Successful: 3
-❌ Failed: 0
-📈 Success Rate: 100.0%
-
-✅ Agent execution completed!
+📋 Next Steps:
+  1. Review the generated contract: contracts/MyToken.sol
+  2. Run tests: npx hardhat test test/MyToken.test.js
+  3. Deploy: npx hardhat run scripts/deploy-MyToken.js --network <network>
 ```
 
 ---
 
-## 📁 Project Structure
+## 🏗️ Architecture
+
+### System Flow
+
+```
+User Input (Natural Language)
+         ↓
+┌─────────────────────────────────────┐
+│  Multi-Agent Controller             │
+│  (agent/multi-agent.js)             │
+└─────────────────────────────────────┘
+         ↓
+┌─────────────────────────────────────┐
+│  1️⃣ Planner Agent                   │
+│  • Task analysis                    │
+│  • Type detection                   │
+│  • Plan generation                  │
+└─────────────────────────────────────┘
+         ↓
+┌─────────────────────────────────────┐
+│  2️⃣ Coder Agent                    │
+│  • Solidity code generation         │
+│  • Best practices                   │
+│  • Security patterns                │
+└─────────────────────────────────────┘
+         ↓
+┌─────────────────────────────────────┐
+│  3️⃣ Tester Agent                   │
+│  • Test case generation             │
+│  • Hardhat + ethers.js              │
+│  • Edge case coverage               │
+└─────────────────────────────────────┘
+         ↓
+┌─────────────────────────────────────┐
+│  4️⃣ Deployer Agent                 │
+│  • Deployment scripts               │
+│  • Multi-network support            │
+│  • Verification support             │
+└─────────────────────────────────────┘
+```
+
+### Project Structure
 
 ```
 web3-ai-agent/
-├── agent/                 # AI Agent framework
-│   ├── agent.js          # CLI entry point (executable)
-│   └── index.js          # Agent class implementation
-├── contracts/            # Solidity smart contracts
-│   ├── Web3AIAgent.sol   # Core agent contract
-│   ├── MyToken.sol       # ERC20 token
-│   ├── Web3NFT.sol       # ERC721 NFT
-│   └── VotingDAO.sol     # DAO voting system
-├── scripts/              # Deployment and utility scripts
-│   ├── deploy.js         # Deploy main contract
-│   ├── deploy-token.js   # Deploy token contract
-│   ├── run-agent.js      # Run agent demo
-│   ├── demo-nft-dao.js   # NFT & DAO demo
-│   └── interact-token.js # Token interaction demo
-├── test/                 # Contract tests
-│   ├── Web3AIAgent.test.js
-│   ├── MyToken.test.js
-│   ├── Web3NFT.test.js
-│   └── VotingDAO.test.js
-├── artifacts/            # Compiled contracts (gitignored)
-├── cache/                # Hardhat cache (gitignored)
-├── hardhat.config.js     # Hardhat configuration
-├── package.json          # Project dependencies
-├── tasks.example.txt     # Example tasks file
-├── demo-cli.sh          # Interactive demo script
-├── AGENT_CLI_GUIDE.md   # Complete CLI guide
-├── CLI_QUICK_REF.md     # Quick reference card
-└── README.md            # This file
+├── agent/                          # Multi-Agent System
+│   ├── multi-agent.js             # Main controller
+│   ├── planner.js                 # Planner agent
+│   ├── coders/
+│   │   └── coder.js              # Contract generator
+│   ├── testers/
+│   │   └── tester.js             # Test generator
+│   └── deployers/
+│       └── deployer.js           # Deployment script generator
+├── contracts/                      # Generated Solidity contracts
+├── test/                          # Generated test files
+├── scripts/                       # Generated deployment scripts
+├── reports/                       # Execution reports (gitignored)
+├── deployments/                   # Deployment records (gitignored)
+├── hardhat.config.js             # Hardhat configuration
+├── package.json                  # Dependencies
+├── MULTI_AGENT_GUIDE.md          # Complete guide
+├── MULTI_AGENT_QUICK_REF.md      # Quick reference
+└── README.md                     # This file
 ```
+
+---
+
+## 💻 Usage
+
+### Command Line Interface
+
+```bash
+# Single contract generation
+node agent/multi-agent.js "创建ERC20代币 TestToken"
+
+# Multiple contracts
+node agent/multi-agent.js "创建ERC20 Token1" "创建NFT NFT1" "创建DAO DAO1"
+
+# View help
+node agent/multi-agent.js
+```
+
+### After Generation
+
+```bash
+# 1. Review the generated contract
+cat contracts/MyToken.sol
+
+# 2. Run tests
+npx hardhat test test/MyToken.test.js
+
+# 3. Compile to verify
+npx hardhat compile
+
+# 4. Deploy to local network
+npx hardhat node &                          # Terminal 1
+npx hardhat run scripts/deploy-MyToken.js --network localhost  # Terminal 2
+
+# 5. Deploy to testnet
+npx hardhat run scripts/deploy-MyToken.js --network sepolia
+```
+
+### Generated Files
+
+For each task, the system generates:
+
+1. **Smart Contract** (`contracts/{ContractName}.sol`)
+   - Production-ready Solidity code
+   - OpenZeppelin imports
+   - Security best practices
+   - Comprehensive comments
+
+2. **Test File** (`test/{ContractName}.test.js`)
+   - Complete test suite
+   - Edge case coverage
+   - Clear documentation
+   - Hardhat + ethers.js
+
+3. **Deployment Script** (`scripts/deploy-{ContractName}.js`)
+   - Network-agnostic deployment
+   - Etherscan verification
+   - Deployment record saving
 
 ---
 
@@ -229,8 +287,8 @@ web3-ai-agent/
 
 ### Blockchain & Smart Contracts
 - **Solidity** ^0.8.0 - Smart contract language
-- **Hardhat** ^2.28.4 - Ethereum development environment
-- **Ethers.js** ^6.16.0 - Blockchain interaction library
+- **Hardhat** ^2.22.0 - Ethereum development environment
+- **Ethers.js** ^6.16.0 - Blockchain interaction
 - **OpenZeppelin** ^5.4.0 - Secure contract library
 
 ### Development Tools
@@ -238,35 +296,33 @@ web3-ai-agent/
 - **Node.js** >= 18.x - Runtime environment
 - **npm** - Package manager
 
-### Smart Contract Features
-- ERC20 Token standard
-- ERC721 NFT standard with metadata
-- DAO governance with voting
-- Access control (Ownable)
-- Event emission and monitoring
+### Agent System
+- **Modular Architecture** - Each agent is independent
+- **Async/Await** - Non-blocking execution
+- **Error Handling** - Graceful failure handling
+- **Progress Tracking** - Real-time status updates
 
 ---
 
 ## 📖 Documentation
 
-- **[CLI Quick Reference](CLI_QUICK_REF.md)** - Quick command reference card
-- **[Complete CLI Guide](AGENT_CLI_GUIDE.md)** - Detailed CLI documentation
-- **[Update Log](AGENT_CLI_UPDATE.md)** - Recent changes and updates
+- **[Multi-Agent Guide](MULTI_AGENT_GUIDE.md)** - Complete system documentation
+- **[Quick Reference](MULTI_AGENT_QUICK_REF.md)** - Command quick reference
+- **[Planner Guide](PLANNER_GUIDE.md)** - Planner agent documentation
+- **[CLI Guide](AGENT_CLI_GUIDE.md)** - Legacy CLI documentation
 
 ---
 
 ## 🧪 Testing
 
-The project includes comprehensive tests for all smart contracts:
-
 ```bash
 # Run all tests
 npm test
 
-# Test specific contracts
-npm run test:token      # Test ERC20 token
-npm run test:nft        # Test ERC721 NFT
-npm run test:dao        # Test DAO voting
+# Test specific contract
+npm run test:token      # ERC20 token
+npm run test:nft        # ERC721 NFT
+npm run test:dao        # DAO voting
 
 # Coverage report
 npm run test:coverage
@@ -275,45 +331,11 @@ npm run test:coverage
 ### Test Coverage
 
 - ✅ Contract deployment
-- ✅ Task creation and execution
-- ✅ Event emission
+- ✅ Token functionality (mint, burn, transfer)
+- ✅ NFT operations (mint, metadata, ownership)
+- ✅ DAO governance (proposals, voting, execution)
 - ✅ Access control
-- ✅ Token transfers
-- ✅ NFT minting and metadata
-- ✅ DAO voting mechanism
-
----
-
-## 🔧 Configuration
-
-### Environment Variables
-
-Create a `.env` file from the example:
-
-```bash
-cp .env.example .env
-```
-
-Edit `.env` with your configuration:
-
-```env
-# Private key for deployment (use hardhat default for local)
-PRIVATE_KEY=0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
-
-# RPC URLs
-SEPOLIA_RPC_URL=https://sepolia.infura.io/v3/YOUR_PROJECT_ID
-
-# API Keys (optional, for future features)
-ETHERSCAN_API_KEY=YOUR_ETHERSCAN_KEY
-```
-
-### Hardhat Config
-
-Edit `hardhat.config.js` to configure:
-- Solidity compiler version
-- Network settings (localhost, sepolia, mainnet)
-- Gas settings
-- Etherscan verification
+- ✅ Edge cases
 
 ---
 
@@ -325,16 +347,15 @@ Edit `hardhat.config.js` to configure:
 # Terminal 1: Start local node
 npm run node
 
-# Terminal 2: Deploy contracts
-npm run deploy:local
+# Terminal 2: Deploy contract
+npx hardhat run scripts/deploy-MyToken.js --network localhost
 ```
 
 ### Testnet (Sepolia)
 
 ```bash
 # Configure .env with your keys
-# Deploy to Sepolia
-npm run deploy:sepolia
+npx hardhat run scripts/deploy-MyToken.js --network sepolia
 ```
 
 ### Mainnet
@@ -342,44 +363,37 @@ npm run deploy:sepolia
 ⚠️ **Caution**: Only deploy to mainnet after thorough testing!
 
 ```bash
-# Configure mainnet settings in hardhat.config.js
-# Deploy to mainnet
-npx hardhat run scripts/deploy.js --network mainnet
+npx hardhat run scripts/deploy-MyToken.js --network mainnet
 ```
 
 ---
 
-## 📖 Programmatic Usage
+## 🔧 Configuration
 
-```javascript
-const Web3AIAgent = require("./agent/index.js");
+### Environment Variables
 
-// Initialize agent
-const agent = new Web3AIAgent(
-  contractAddress,
-  contractABI,
-  signer
-);
+Create `.env` from `.env.example`:
 
-// Analyze contract state
-const analysis = await agent.analyze();
-console.log(analysis);
+```bash
+cp .env.example .env
+```
 
-// Execute a task
-await agent.executeTask("Analyze market data");
+```env
+# Private key for deployment
+PRIVATE_KEY=your_private_key_here
 
-// Monitor events (real-time)
-await agent.monitorEvents();
+# RPC URLs
+SEPOLIA_RPC_URL=https://sepolia.infura.io/v3/YOUR_PROJECT_ID
 
-// Generate activity report
-agent.generateReport();
+# API Keys
+ETHERSCAN_API_KEY=YOUR_ETHERSCAN_KEY
 ```
 
 ---
 
 ## 🤝 Contributing
 
-Contributions are welcome! Here's how you can help:
+Contributions are welcome!
 
 1. **Fork** the repository
 2. **Create** a feature branch (`git checkout -b feature/amazing-feature`)
@@ -387,31 +401,24 @@ Contributions are welcome! Here's how you can help:
 4. **Push** to the branch (`git push origin feature/amazing-feature`)
 5. **Open** a Pull Request
 
-### Development Guidelines
+### Adding New Agents
 
-- Write tests for new features
-- Follow the existing code style
-- Update documentation as needed
-- Ensure all tests pass before submitting
+1. Create agent file in `agent/{agent_type}/`
+2. Implement the agent interface
+3. Import in `multi-agent.js`
+4. Add tests
+5. Update documentation
 
 ---
 
 ## 🐛 Troubleshooting
 
-### Common Issues
-
 | Issue | Solution |
 |-------|----------|
-| `Network error` | Run `npm run node` in another terminal |
-| `Contract not found` | Re-deploy with `--deploy` flag |
-| `Out of gas` | Check account balance |
-| `Private key error` | Check `.env` file configuration |
-
-### Getting Help
-
-- 📖 Check the [CLI Guide](AGENT_CLI_GUIDE.md)
-- 📋 Review [Quick Reference](CLI_QUICK_REF.md)
-- 🐛 [Open an issue](https://github.com/hobostay/web3-ai-agent/issues)
+| `Module not found` | Run `npm install` |
+| `Hardhat not found` | Install globally: `npm install -g hardhat` |
+| `Compilation errors` | Check OpenZeppelin is installed |
+| `No output files` | Check `reports/` for error details |
 
 ---
 
@@ -424,7 +431,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 🔗 Links & Resources
 
 ### Documentation
-- [Hardhat Documentation](https://hardhat.org/getting-started/)
+- [Hardhat Documentation](https://hardhat.org/)
 - [Ethers.js Documentation](https://docs.ethers.org/)
 - [OpenZeppelin Contracts](https://docs.openzeppelin.com/contracts/)
 - [Solidity Documentation](https://docs.soliditylang.org/)
@@ -439,23 +446,23 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 🎓 Roadmap
 
 ### Current Features ✅
-- CLI interface for task execution
-- Batch task processing
-- File-based task configuration
-- Real-time event monitoring
-- Multiple smart contract templates
-- Comprehensive test suite
+- Multi-Agent architecture
+- Natural language processing
+- Automatic contract generation
+- Comprehensive test generation
+- Deployment script generation
+- CLI interface
+- Batch processing
 
 ### Planned Features 🚧
-- [ ] LLM integration (GPT-4, Claude)
-- [ ] Multi-chain support (BSC, Polygon, Arbitrum)
-- [ ] Advanced analytics dashboard
-- [ ] Subgraph integration
-- [ ] MEV protection strategies
-- [ ] Gas optimization strategies
-- [ ] Task scheduling (cron-based)
-- [ ] Web-based management UI
-- [ ] Plugin system for extensions
+- [ ] LLM integration (GPT-4, Claude, Gemini)
+- [ ] Custom contract templates
+- [ ] Gas optimization suggestions
+- [ ] Security audit integration
+- [ ] Web-based UI
+- [ ] Contract verification
+- [ ] Multi-chain deployment
+- [ ] Agent marketplace
 
 ---
 
@@ -465,8 +472,8 @@ If you find this project helpful, please consider giving it a star! ⭐
 
 <div align="center">
 
-**Built with ❤️ using Hardhat, ethers.js, and Solidity**
+**Built with ❤️ using Node.js, Hardhat, and Solidity**
 
-[⬆ Back to Top](#web3-ai-agent-⛓️)
+[⬆ Back to Top](#web3-ai-multi-agent-system-⛓️)
 
 </div>
